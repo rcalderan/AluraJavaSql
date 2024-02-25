@@ -49,7 +49,8 @@ public class ContaService {
             throw new RegraDeNegocioException("Saldo insuficiente!");
         }
 
-        conta.sacar(valor);
+        Connection connection = connFactory.recuperarConexao();
+        new ContaDAO(connection).sacar(numeroDaConta, valor);
     }
 
     public void realizarDeposito(Integer numeroDaConta, BigDecimal valor) {
@@ -59,7 +60,7 @@ public class ContaService {
         }
         if(conta!=null){
             Connection connection = connFactory.recuperarConexao();
-            new ContaDAO(connection).alterar(numeroDaConta,valor);
+            new ContaDAO(connection).alterar(numeroDaConta,conta.getSaldo().add(valor));
         }else{
             throw new RegraDeNegocioException("Conta não encontrada!");
         }

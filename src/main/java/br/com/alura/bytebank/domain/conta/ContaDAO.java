@@ -58,7 +58,9 @@ public class ContaDAO {
 
                 DadosCadastroCliente cad = new DadosCadastroCliente(nome,cpf,email);
                 Cliente cli = new Cliente(cad);
-                contas.add(new Conta(numero,cli));
+                Conta conta = new Conta(numero,cli);
+                conta.setSaldo(saldo);
+                contas.add(conta);
             }
             result.close();
             ps.close();
@@ -80,12 +82,14 @@ public class ContaDAO {
             ResultSet result = ps.executeQuery();
             System.out.println(result);
             if (result.next()){
+                BigDecimal saldo = result.getBigDecimal(2);
                 String nome = result.getString(3);
                 String cpf = result.getString(4);
                 String email = result.getString(5);
                 DadosCadastroCliente cad = new DadosCadastroCliente(nome,cpf,email);
                 Cliente cli = new Cliente(cad);
                 conta = new Conta(numero,cli);
+                conta.setSaldo(saldo);
                 System.out.println(conta);
             }
             result.close();
@@ -97,6 +101,27 @@ public class ContaDAO {
 
     }
 
+    public void sacar(Integer numero, BigDecimal valor){
+        String sql = "SELECT * FROM conta WHERE numero=?";
+        PreparedStatement ps;
+        try {
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, numero);
+            ResultSet res = ps.executeQuery();
+            if(res.next()){
+                BigDecimal saldo = res.getBigDecimal(2);
+                saldo = saldo.subtract(valor);
+                alterar(numero, saldo);
+            }
+            ps.close();
+            res.close();
+            conn.close();
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+
+        }
+
+    }
 
 
     public void alterar(Integer numero, BigDecimal valor){
