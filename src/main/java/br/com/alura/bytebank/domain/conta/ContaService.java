@@ -39,6 +39,11 @@ public class ContaService {
 
     }
 
+    public void realizarTransferencia(Integer contaOrigem, Integer contaDestino, BigDecimal valor){
+        realizarSaque(contaOrigem, valor);
+        realizarDeposito(contaDestino,valor);
+    }
+
     public void realizarSaque(Integer numeroDaConta, BigDecimal valor) {
         var conta = buscarContaPorNumero(numeroDaConta);
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
