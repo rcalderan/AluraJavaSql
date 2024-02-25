@@ -23,7 +23,7 @@ public class ContaService {
 
     public Set<Conta> listarContasAbertas() {
         Connection connection = connFactory.recuperarConexao();
-        return new ContaDAO(connFactory).listar();
+        return new ContaDAO(connection).listar();
     }
 
     public BigDecimal consultarSaldo(Integer numeroDaConta) {
@@ -35,7 +35,7 @@ public class ContaService {
 
         Connection connection = connFactory.recuperarConexao();
 
-        new ContaDAO(connFactory).salva(dadosDaConta);
+        new ContaDAO(connection).salva(dadosDaConta);
 
     }
 
@@ -57,8 +57,13 @@ public class ContaService {
         if (valor.compareTo(BigDecimal.ZERO) <= 0) {
             throw new RegraDeNegocioException("Valor do deposito deve ser superior a zero!");
         }
+        if(conta!=null){
+            Connection connection = connFactory.recuperarConexao();
+            new ContaDAO(connection).alterar(numeroDaConta,valor);
+        }else{
+            throw new RegraDeNegocioException("Conta não encontrada!");
+        }
 
-        conta.depositar(valor);
     }
 
     public void encerrar(Integer numeroDaConta) {
@@ -71,10 +76,7 @@ public class ContaService {
     }
 
     private Conta buscarContaPorNumero(Integer numero) {
-        return contas
-                .stream()
-                .filter(c -> c.getNumero() == numero)
-                .findFirst()
-                .orElseThrow(() -> new RegraDeNegocioException("Não existe conta cadastrada com esse número!"));
+        Connection con = connFactory.recuperarConexao();
+        return new ContaDAO(con).listarPorNumero(numero);
     }
 }

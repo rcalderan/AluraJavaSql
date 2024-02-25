@@ -15,8 +15,8 @@ import java.util.Set;
 public class ContaDAO {
 
     private Connection conn;
-    ContaDAO(ConnectionFactory connection){
-        this.conn = connection.recuperarConexao();
+    ContaDAO(Connection connection){
+        this.conn = connection;
     }
 
     public void salva(DadosAberturaConta dadosDaConta){
@@ -69,16 +69,47 @@ public class ContaDAO {
         }
     }
 
-    public void alterar(Integer numero, BigDecimal valor){
+    public Conta listarPorNumero(Integer numero){
+        String sql = "SELECT * FROM conta WHERE numero=?";
         PreparedStatement ps;
-        String sql = "UPDATE FROM conta SET saldo=? WHERE numero=?";
+
         try {
             ps = conn.prepareStatement(sql);
+            ps.setInt(1,numero);
+            Conta conta = null;
+            ResultSet result = ps.executeQuery();
+            System.out.println(result);
+            if (result.next()){
+                String nome = result.getString(3);
+                String cpf = result.getString(4);
+                String email = result.getString(5);
+                DadosCadastroCliente cad = new DadosCadastroCliente(nome,cpf,email);
+                Cliente cli = new Cliente(cad);
+                conta = new Conta(numero,cli);
+                System.out.println(conta);
+            }
+            result.close();
+            ps.close();
+            return conta;
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
+
+    public void alterar(Integer numero, BigDecimal valor){
+        PreparedStatement ps;
+        String sql = "UPDATE conta SET saldo = ? WHERE numero = ?";
+        try {
+            ps = conn.prepareStatement(sql);            System.out.println("pos");
             ps.setBigDecimal(1,valor);
             ps.setInt(2,numero);
             ps.execute();
             ps.close();
             conn.close();
+
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
