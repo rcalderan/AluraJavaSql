@@ -124,6 +124,21 @@ public class ContaDAO {
     }
 
 
+    public void encerrar(Integer numero){
+        PreparedStatement ps;
+        String sql = "DELETE FROM conta WHERE numero = ?";
+        try {
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1,numero);
+            ps.execute();
+            ps.close();
+            conn.close();
+
+        }catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public void alterar(Integer numero, BigDecimal valor){
         PreparedStatement ps;
         String sql = "UPDATE conta SET saldo = ? WHERE numero = ?";

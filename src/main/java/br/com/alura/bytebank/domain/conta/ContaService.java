@@ -2,13 +2,9 @@ package br.com.alura.bytebank.domain.conta;
 
 import br.com.alura.bytebank.ConnectionFactory;
 import br.com.alura.bytebank.domain.RegraDeNegocioException;
-import br.com.alura.bytebank.domain.cliente.Cliente;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.Set;
 
 public class ContaService {
@@ -18,8 +14,6 @@ public class ContaService {
     public ContaService(){
         this.connFactory = new ConnectionFactory();
     }
-
-    private Set<Conta> contas = new HashSet<>();
 
     public Set<Conta> listarContasAbertas() {
         Connection connection = connFactory.recuperarConexao();
@@ -77,8 +71,12 @@ public class ContaService {
         if (conta.possuiSaldo()) {
             throw new RegraDeNegocioException("Conta não pode ser encerrada pois ainda possui saldo!");
         }
-
-        contas.remove(conta);
+        if(conta!=null){
+            Connection connection = connFactory.recuperarConexao();
+            new ContaDAO(connection).encerrar(conta.getNumero());
+        }else{
+            throw new RegraDeNegocioException("Conta não encontrada!");
+        }
     }
 
     private Conta buscarContaPorNumero(Integer numero) {
